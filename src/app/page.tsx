@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { HeroSection } from "./components/Hero";
+import { HomePageCategory } from "./components/HomePageCategory";
 
 type FoodCategory = {
   _id: number;
@@ -37,21 +39,18 @@ export default function Home() {
   };
 
   return (
-    <div className="m-10">
-      {foodCategory?.map((category) => {
+    <div className="">
+      {/* {foodCategory?.map((category) => {
         return (
           <div className="text-black" key={category._id}>
             {category.categoryName}
           </div>
         );
-      })}
-      <div className="text-black">
-        <button
-          onClick={addCategory}
-          className="bg-slate-400 rounded-lg p-2 mt-10"
-        >
-          Add Category
-        </button>
+      })} */}
+      <HeroSection />
+      <div className="flex flex-col  items-center mt-8 gap-9">
+        <h1 className="">Categories</h1>
+        <HomePageCategory />
       </div>
     </div>
   );
