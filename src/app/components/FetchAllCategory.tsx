@@ -45,7 +45,7 @@ export const FetchEachCategory = ({ category }: Props) => {
   useEffect(() => {
     const fetchFoods = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food/${filteredFoodCategory._id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${filteredFoodCategory._id}`
       );
       const data = await response.json();
       console.log(data);

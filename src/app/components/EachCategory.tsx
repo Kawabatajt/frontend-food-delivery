@@ -17,7 +17,7 @@ import {
 import { CategoryModal } from "./Category";
 
 const inter = Inter({ subsets: ["latin"] });
-type Foods = {
+export type Foods = {
   _id: number;
   foodName: string;
   price: number;
@@ -42,10 +42,9 @@ export const EachCategory = ({ foodCategory }: Props) => {
   const filteredFoodCategory = foodCategory;
 
   useEffect(() => {
-    console.log({ a: 1 });
     const fetchFoods = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food/${filteredFoodCategory._id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${filteredFoodCategory._id}`
       );
       const data = await response.json();
       console.log(data);
