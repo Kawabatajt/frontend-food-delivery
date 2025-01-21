@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FetchEachCategory } from "@/app/components/FetchAllCategory";
 import { SideBar } from "@/app/components/Sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -37,7 +36,7 @@ export default function Home() {
           </div>
           <CategoryModal />
           {foodCategory?.map((category) => (
-            <FetchEachCategory key={category._id} category={category} />
+            <EachCategory key={category._id} category={category} />
           ))}
         </div>
       </div>

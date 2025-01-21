@@ -14,11 +14,12 @@ type FoodCategory = {
 export default function FoodsPage() {
   const [foodCategory, setFoodCategory] = useState<FoodCategory[]>([]);
   const searchParams = useSearchParams();
-  const search = searchParams.get("categoryId");
-  const allSearch = searchParams.get("all-categories");
+  const categoryId = searchParams.get("categoryId");
   const SelectedCategory = foodCategory.find(
-    (category) => category._id == search
+    (category) => category._id == categoryId
   );
+
+  console.log({ categoryId });
 
   useEffect(() => {
     const fetchFoodCategory = async () => {
@@ -35,19 +36,31 @@ export default function FoodsPage() {
     <div className="">
       <HeroSection />'
       <div className="w-[2000px] mx-auto">
-        <div className="flex">
-          <Link href={`/foods?all-categories=1`}>
-            <Badge>All Dishes</Badge>
+        <div className="flex gap-2">
+          <Link href={`/foods`}>
+            <Badge
+              variant="outline"
+              className={`${
+                categoryId === null ? "bg-[#EF4444] text-white" : "bg-white"
+              } text-lg rounded-full font-normal`}
+            >
+              All Dishes
+            </Badge>
           </Link>
           {foodCategory?.map((category) => (
             <HomePageCategory category={category} key={category._id} />
           ))}
         </div>
-        {allSearch == "1"
+        {categoryId === null
           ? foodCategory.map((category) => (
-              <HomeCategory key={category.id} category={category} />
+              <HomeCategory key={category._id} category={category} />
             ))
-          : SelectedCategory && <HomeCategory category={SelectedCategory} />}
+          : SelectedCategory && (
+              <HomeCategory
+                key={SelectedCategory._id}
+                category={SelectedCategory}
+              />
+            )}
       </div>
     </div>
   );

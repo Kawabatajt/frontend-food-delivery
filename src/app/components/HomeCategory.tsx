@@ -27,7 +27,7 @@ export type Foods = {
   category: string;
 };
 type Category = {
-  _id: number;
+  _id: string;
   categoryName: string;
 };
 type Props = {

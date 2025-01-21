@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Image } from "lucide-react";
+import { Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +19,7 @@ import { CategoryModal } from "./Category";
 
 const inter = Inter({ subsets: ["latin"] });
 export type Foods = {
-  _id: number;
+  _id: string;
   foodName: string;
   price: number;
   image: string;
@@ -30,21 +31,20 @@ type Category = {
   categoryName: string;
 };
 type Props = {
-  foodCategory: Category;
+  category: Category;
 };
-export const EachCategory = ({ foodCategory }: Props) => {
+export const EachCategory = ({ category }: Props) => {
   const [foods, setFoods] = useState<Foods[]>([]);
   const [foodValue, setFoodValue] = useState<string>();
   const [priceValue, setPriceValue] = useState<number>();
   const [ingredientsValue, setIngredientsValue] = useState<string>();
   const [createDialog, setCreateDialog] = useState(false);
   const [imageValue, setImageValue] = useState<string>();
-  const filteredFoodCategory = foodCategory;
 
   useEffect(() => {
     const fetchFoods = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${filteredFoodCategory._id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${category._id}`
       );
       const data = await response.json();
       console.log(data);
@@ -80,7 +80,7 @@ export const EachCategory = ({ foodCategory }: Props) => {
         price: priceValue,
         ingredients: ingredientsValue,
         image: imageValue,
-        category: foodCategory._id,
+        category: category._id,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -93,9 +93,7 @@ export const EachCategory = ({ foodCategory }: Props) => {
 
   return (
     <div className={`bg-white mt-6 rounded-xl p-5 ${inter.className}`}>
-      <h1 className="mb-4 text-xl font-semibold">
-        {filteredFoodCategory?.categoryName}
-      </h1>
+      <h1 className="mb-4 text-xl font-semibold">{category?.categoryName}</h1>
       <div className="flex gap-4 flex-wrap">
         <div className="w-[270px] h-[241px] rounded-xl border-dashed border-[#EF4444] border-[1px] flex flex-col justify-center items-center gap-6">
           <Dialog open={createDialog} onOpenChange={setCreateDialog}>
@@ -106,7 +104,7 @@ export const EachCategory = ({ foodCategory }: Props) => {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader className="mb-6">
-                <DialogTitle>{`Add new Dish to ${filteredFoodCategory?.categoryName} `}</DialogTitle>
+                <DialogTitle>{`Add new Dish to ${category?.categoryName} `}</DialogTitle>
               </DialogHeader>
               <div className="flex justify-between mb-2">
                 <div>
@@ -124,7 +122,7 @@ export const EachCategory = ({ foodCategory }: Props) => {
                     placeholder="Enter price"
                     className="pr-12"
                     value={priceValue}
-                    onChange={(e) => setPriceValue(e.target.value)}
+                    onChange={(e) => setPriceValue(Number(e.target.value))}
                   />
                 </div>
               </div>
@@ -175,7 +173,7 @@ export const EachCategory = ({ foodCategory }: Props) => {
 
           <div className="w-[120px]">
             <h1 className="text-[14px] text-center">
-              {`Add new Dish to ${filteredFoodCategory?.categoryName}`}
+              {`Add new Dish to ${category?.categoryName}`}
             </h1>
           </div>
         </div>
@@ -183,13 +181,12 @@ export const EachCategory = ({ foodCategory }: Props) => {
           return (
             <div
               key={food._id}
-              className="w-[270px] h-[241px] border-[1px] border-[#E4E4E7] rounded-xl p-4"
+              className="w-[270px] h-[241px] border-[1px] border-[#E4E4E7] rounded-xl p-4 relative"
             >
-              <img
-                className="w-[238.75px] h-[129px] rounded-xl mb-5"
-                src={food?.image}
-                alt=""
-              />
+              <div
+                className="w-[238.75px] h-[129px] mb-5 rounded-xl bg-center bg-cover bg-no-repeat"
+                style={{ backgroundImage: `url(${food.image}) ` }}
+              ></div>
               <div className="flex items-center justify-between mb-2">
                 <h1 className="font-medium text-sm text-[#EF4444]">
                   {food.foodName}
@@ -202,6 +199,26 @@ export const EachCategory = ({ foodCategory }: Props) => {
               <p className="text-xs font-normal text-[#09090B]">
                 {food.ingredients}
               </p>
+              <Dialog>
+                <DialogTrigger>
+                  <div className="size-[44px] bg-white rounded-full flex justify-center items-center absolute right-8 bottom-[45%]">
+                    <Pencil className="text-[#EF4444]" />
+                  </div>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Dishes info</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex justify-between">
+                    <h1>Dish Name</h1>
+                    <Input className="px-2 py-2 w-[300px]" />
+                  </div>
+                  <div className="flex justify-between">
+                    <h1>Dish Name</h1>
+                    <div className=""></div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           );
         })}
