@@ -114,7 +114,9 @@ export const CategoryModal = () => {
           </DialogContent>
         </Dialog>
       </div>
-      {selectedCategory && <EachCategory category={selectedCategory} />}
+      {selectedCategory && (
+        <EachCategory allCategory={foodCategory} category={selectedCategory} />
+      )}
     </div>
   );
 };

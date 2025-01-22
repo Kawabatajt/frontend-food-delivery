@@ -30,7 +30,7 @@ export const FoodCard = ({ food }: Props) => {
   return (
     <Dialog>
       <DialogTrigger>
-        <Card className="">
+        <Card className="pt-4">
           <CardContent>
             <div
               className="w-[377px] h-[364px] rounded-xl bg-center bg-cover bg-no-repeat"

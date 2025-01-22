@@ -36,7 +36,11 @@ export default function Home() {
           </div>
           <CategoryModal />
           {foodCategory?.map((category) => (
-            <EachCategory key={category._id} category={category} />
+            <EachCategory
+              allCategory={foodCategory}
+              key={category._id}
+              category={category}
+            />
           ))}
         </div>
       </div>

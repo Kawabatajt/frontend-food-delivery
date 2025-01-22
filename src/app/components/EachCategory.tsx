@@ -1,12 +1,14 @@
 "use client";
 import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Inter } from "next/font/google";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Image } from "lucide-react";
 import { Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +18,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CategoryModal } from "./Category";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Value } from "@radix-ui/react-select";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 const inter = Inter({ subsets: ["latin"] });
 export type Foods = {
@@ -24,7 +35,7 @@ export type Foods = {
   price: number;
   image: string;
   ingredients: string;
-  category: number;
+  category: string;
 };
 type Category = {
   _id: string;
@@ -32,27 +43,64 @@ type Category = {
 };
 type Props = {
   category: Category;
+  allCategory: Category[];
 };
-export const EachCategory = ({ category }: Props) => {
+export const EachCategory = ({
+  category,
+  allCategory,
+}: {
+  category: Category;
+  allCategory: Category[];
+}) => {
   const [foods, setFoods] = useState<Foods[]>([]);
   const [foodValue, setFoodValue] = useState<string>();
   const [priceValue, setPriceValue] = useState<number>();
   const [ingredientsValue, setIngredientsValue] = useState<string>();
   const [createDialog, setCreateDialog] = useState(false);
-  const [imageValue, setImageValue] = useState<string>();
+  const [imageValue, setImageValue] = useState<any>(false);
+  const [imageUpdate, setImageUpdate] = useState<string>();
 
+  const [categoryId, setCategoryId] = useState<string>();
+  const [editFoods, setEditFoods] = useState<Foods[]>();
+  const fetchFoods = async () => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${category._id}`
+    );
+    const data = await response.json();
+    setFoods(data);
+  };
   useEffect(() => {
-    const fetchFoods = async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${category._id}`
-      );
-      const data = await response.json();
-      console.log(data);
-      setFoods(data);
-    };
     fetchFoods();
   }, []);
-
+  const handleEdit = async (food: Foods) => {
+    const req = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${food._id}`,
+      {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          foodName: foodValue,
+          price: priceValue,
+          ingredients: ingredientsValue,
+          image: imageUpdate,
+          category: categoryId,
+        }),
+      }
+    );
+    fetchFoods();
+    window.location.reload();
+  };
+  const handleDelete = async (id: string) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+  };
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
@@ -69,8 +117,10 @@ export const EachCategory = ({ category }: Props) => {
       const dataJson = await response.json();
       console.log(dataJson);
       setImageValue(dataJson.secure_url);
+      setImageUpdate(dataJson.secure_url);
     }
   };
+  console.log(imageValue);
   const src = imageValue;
   const addFoodDetails = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/food`, {
@@ -137,17 +187,20 @@ export const EachCategory = ({ category }: Props) => {
               </div>
               <div>
                 <h1 className="mb-2 font-medium">Food Image</h1>
-                <div className="h-[138px] w-[100%] bg-[#2563EB0D]">
-                  <label className=" size-[100%] border-[1px] border-dashed flex justify-center items-center">
+                <div className="h-[138px] w-[100%] bg-[#2563EB0D] rounded-lg">
+                  <label className=" size-[100%] border-[1px] border-dashed flex justify-center items-center ">
                     <input
                       className="hidden size-[200px]"
                       type="file"
                       onChange={handleUpload}
                     />
                     {src ? (
-                      <img className="w-full h-full" src={src} />
+                      <div
+                        style={{ backgroundImage: `url(${src})` }}
+                        className="bg-center bg-cover bg-no-repeat h-[138px] w-[100%] rounded-lg"
+                      ></div>
                     ) : (
-                      <div className="flex flex-col items-center gap-4">
+                      <div className="flex flex-col items-center gap-4 rounded-lg">
                         <div className="size-[32px] bg-white flex justify-center items-center rounded-full">
                           <Image className="size-[16px]" />
                         </div>
@@ -211,11 +264,94 @@ export const EachCategory = ({ category }: Props) => {
                   </DialogHeader>
                   <div className="flex justify-between">
                     <h1>Dish Name</h1>
-                    <Input className="px-2 py-2 w-[300px]" />
+                    <Input
+                      defaultValue={food?.foodName}
+                      className="px-2 py-2 w-[300px]"
+                      value={foodValue}
+                      onChange={(e) => setFoodValue(e.target.value)}
+                    />
                   </div>
                   <div className="flex justify-between">
-                    <h1>Dish Name</h1>
-                    <div className=""></div>
+                    <h1>Dish Category</h1>
+                    <div className="">
+                      <Select onValueChange={(val) => setCategoryId(val)}>
+                        <SelectTrigger className="w-[300px]">
+                          <SelectValue placeholder={category.categoryName} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allCategory?.map((category) => (
+                            <SelectItem key={category._id} value={category._id}>
+                              <Badge variant="outline">
+                                {category.categoryName}
+                              </Badge>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <h1>Ingredients</h1>
+                    <Input
+                      defaultValue={food?.ingredients}
+                      className="px-2 pt-5 w-[300px] pb-20"
+                    />
+                  </div>
+                  <div className="flex justify-between">
+                    <h1>Price</h1>
+                    <Input
+                      defaultValue={food?.price}
+                      className="px-2 py-2 w-[300px]"
+                    />
+                  </div>
+                  <div className="flex justify-between">
+                    <h1>Image</h1>
+
+                    <label className="rounded-lg w-[300px] h-[150px] border-[1px] border-dashed flex justify-center items-center bg-center bg-cover">
+                      {imageValue ? (
+                        <div
+                          style={{ backgroundImage: `url(${imageValue}) ` }}
+                          className="rounded-lg w-[300px] h-[150px] border-[1px] border-dashed flex justify-center items-center bg-center bg-cover"
+                        >
+                          <Input
+                            onChange={handleUpload}
+                            className="hidden size-[200px]"
+                            type="file"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          style={{ backgroundImage: `url(${food.image}) ` }}
+                          className="rounded-lg w-[300px] h-[150px] border-[1px] border-dashed flex justify-center items-center bg-center bg-cover"
+                        >
+                          <Input
+                            onChange={handleUpload}
+                            className="hidden size-[200px]"
+                            type="file"
+                          />
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                  <div className="flex justify-between mt-9">
+                    <DialogClose asChild>
+                      <div
+                        onClick={() => handleDelete(food._id)}
+                        className="py-2 px-4 border-[1px] rounded-md"
+                      >
+                        <Trash className="text-[#EF4444]" />
+                      </div>
+                    </DialogClose>
+
+                    <DialogClose asChild>
+                      <Button
+                        onClick={() => handleEdit(food)}
+                        variant="outline"
+                        className="font-medium hover:bg-[#18181B] hover:text-white"
+                      >
+                        Save changes
+                      </Button>
+                    </DialogClose>
                   </div>
                 </DialogContent>
               </Dialog>
