@@ -2,40 +2,60 @@
 import { useState, useEffect } from "react";
 import { HeroSection } from "./components/Hero";
 import { HomePageCategory } from "./components/HomePageCategory";
-
-type FoodCategory = {
+import { EachCategory } from "./components/EachCategory";
+import { HomeCategory } from "./components/HomeCategory";
+import { useSearchParams } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { useAuthFetch } from "./components/useFetchData";
+import Link from "next/link";
+import { Footer } from "./components/Footer";
+type Categories = {
   _id: string;
   categoryName: string;
 };
+export default function FoodsPage() {
+  const { isLoading, data: categories } =
+    useAuthFetch<Categories[]>("food-category");
 
-export default function Home() {
-  const [foodCategory, setFoodCategory] = useState<FoodCategory[]>([]);
-  useEffect(() => {
-    const fetchFoodCategory = async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food-category`
-      );
-      const data = await response.json();
-      setFoodCategory(data);
-    };
-    fetchFoodCategory();
-  }, []);
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("categoryId");
+
+  if (isLoading) return <div>Loading...</div>;
+
+  const SelectedCategory = categories.find(
+    (category) => category._id == categoryId
+  );
   return (
     <div className="">
-      {/* {foodCategory?.map((category) => {
-        return (
-          <div className="text-black" key={category._id}>
-            {category.categoryName}
-          </div>
-        );
-      })} */}
-      <HeroSection />
-      <div className="flex items-center mt-8">
-        <h1 className="">Categories</h1>
-        {foodCategory?.map((category) => (
-          <HomePageCategory key={category._id} category={category} />
-        ))}
+      <HeroSection />'
+      <div className="w-[2000px] mx-auto">
+        <div className="flex gap-2">
+          <Link href={`/foods`}>
+            <Badge
+              variant="outline"
+              className={`${
+                categoryId === null ? "bg-[#EF4444] text-white" : "bg-white"
+              } text-lg rounded-full font-normal`}
+            >
+              All Dishes
+            </Badge>
+          </Link>
+          {Categories?.map((category) => (
+            <HomePageCategory category={category} key={category._id} />
+          ))}
+        </div>
+        {categoryId === null
+          ? Categories.map((category) => (
+              <HomeCategory key={category._id} category={category} />
+            ))
+          : SelectedCategory && (
+              <HomeCategory
+                key={SelectedCategory._id}
+                category={SelectedCategory}
+              />
+            )}
       </div>
+      <Footer categories={Categories} />
     </div>
   );
 }

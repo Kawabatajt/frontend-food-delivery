@@ -6,6 +6,7 @@ import { EachCategory } from "../components/EachCategory";
 import { HomeCategory } from "../components/HomeCategory";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { useAuthFetch } from "../components/useFetchData";
 import Link from "next/link";
 type FoodCategory = {
   _id: string;
@@ -13,25 +14,15 @@ type FoodCategory = {
 };
 export default function FoodsPage() {
   const [foodCategory, setFoodCategory] = useState<FoodCategory[]>([]);
+  const { isLoading, data: Categories } = useAuthFetch("food-category");
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
-  const SelectedCategory = foodCategory.find(
+
+  if (isLoading) return <div>Loading...</div>;
+
+  const SelectedCategory = Categories.find(
     (category) => category._id == categoryId
   );
-
-  console.log({ categoryId });
-
-  useEffect(() => {
-    const fetchFoodCategory = async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food-category`
-      );
-      const data = await response.json();
-      setFoodCategory(data);
-    };
-    fetchFoodCategory();
-  }, []);
-
   return (
     <div className="">
       <HeroSection />'
@@ -47,12 +38,12 @@ export default function FoodsPage() {
               All Dishes
             </Badge>
           </Link>
-          {foodCategory?.map((category) => (
+          {Categories?.map((category) => (
             <HomePageCategory category={category} key={category._id} />
           ))}
         </div>
         {categoryId === null
-          ? foodCategory.map((category) => (
+          ? Categories.map((category) => (
               <HomeCategory key={category._id} category={category} />
             ))
           : SelectedCategory && (

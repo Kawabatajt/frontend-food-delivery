@@ -2,6 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
 import { Inter } from "next/font/google";
+import { useAuthFetch } from "./useFetchData";
 const inter = Inter({ subsets: ["latin"] });
 import {
   Dialog,
@@ -27,22 +28,11 @@ type FoodCategory = {
 export const CategoryModal = () => {
   const [foodCategory, setFoodCategory] = useState<FoodCategory[]>([]);
   const [inputValue, setInputValue] = useState<any>([]);
+  const { isLoading, data: categories } = useAuthFetch("food-category");
   const [createOpenModal, setCreateOpenModal] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
   const params = useParams();
-
-  useEffect(() => {
-    const fetchFoodCategory = async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food-category`
-      );
-      const data = await response.json();
-      console.log(data);
-      setFoodCategory(data);
-    };
-    fetchFoodCategory();
-  }, []);
-
+  if (isLoading) return <div>Loading...</div>;
   const addCategory = async () => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/food-category`,
@@ -64,8 +54,8 @@ export const CategoryModal = () => {
     setIsDisabled(!value.trim());
   };
 
-  const selectedCategory = foodCategory?.find(
-    (category) => category._id === params.id
+  const selectedCategory = categories?.find(
+    (category: FoodCategory) => category._id === params.id
   );
 
   return (
@@ -76,7 +66,7 @@ export const CategoryModal = () => {
           <Link href={`/admin/menu`}>
             <Badge variant="outline">All Dishes</Badge>
           </Link>
-          {foodCategory?.map((category) => (
+          {categories?.map((category) => (
             <Link key={category._id} href={`/admin/menu/${category._id}`}>
               <Badge
                 key={category._id}
@@ -115,7 +105,7 @@ export const CategoryModal = () => {
         </Dialog>
       </div>
       {selectedCategory && (
-        <EachCategory allCategory={foodCategory} category={selectedCategory} />
+        <EachCategory allCategories={categories} category={selectedCategory} />
       )}
     </div>
   );

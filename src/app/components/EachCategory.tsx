@@ -9,6 +9,8 @@ import { Image } from "lucide-react";
 import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Trash } from "lucide-react";
+import { useAuthFetch } from "./useFetchData";
+
 import {
   Dialog,
   DialogContent,
@@ -43,14 +45,14 @@ type Category = {
 };
 type Props = {
   category: Category;
-  allCategory: Category[];
+  allCategories: Category[];
 };
 export const EachCategory = ({
   category,
-  allCategory,
+  allCategories,
 }: {
   category: Category;
-  allCategory: Category[];
+  allCategories: Category[];
 }) => {
   const [foods, setFoods] = useState<Foods[]>([]);
   const [foodValue, setFoodValue] = useState<string>();
@@ -59,19 +61,13 @@ export const EachCategory = ({
   const [createDialog, setCreateDialog] = useState(false);
   const [imageValue, setImageValue] = useState<any>(false);
   const [imageUpdate, setImageUpdate] = useState<string>();
+  const { isLoading, data: foodItems } = useAuthFetch(
+    `food?id=${category._id}`
+  );
 
+  console.log({ allCategories });
   const [categoryId, setCategoryId] = useState<string>();
   const [editFoods, setEditFoods] = useState<Foods[]>();
-  const fetchFoods = async () => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${category._id}`
-    );
-    const data = await response.json();
-    setFoods(data);
-  };
-  useEffect(() => {
-    fetchFoods();
-  }, []);
   const handleEdit = async (food: Foods) => {
     const req = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${food._id}`,
@@ -90,7 +86,6 @@ export const EachCategory = ({
         }),
       }
     );
-    fetchFoods();
     window.location.reload();
   };
   const handleDelete = async (id: string) => {
@@ -230,7 +225,7 @@ export const EachCategory = ({
             </h1>
           </div>
         </div>
-        {foods?.map((food) => {
+        {foodItems?.map((food) => {
           return (
             <div
               key={food._id}
@@ -279,7 +274,7 @@ export const EachCategory = ({
                           <SelectValue placeholder={category.categoryName} />
                         </SelectTrigger>
                         <SelectContent>
-                          {allCategory?.map((category) => (
+                          {allCategories?.map((category) => (
                             <SelectItem key={category._id} value={category._id}>
                               <Badge variant="outline">
                                 {category.categoryName}

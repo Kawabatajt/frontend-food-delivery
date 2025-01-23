@@ -5,20 +5,10 @@ type FoodCategory = {
   categoryName: string;
 };
 import Marquee from "react-fast-marquee";
-
-export const Footer = () => {
-  const [foodCategory, setFoodCategory] = useState<FoodCategory[]>([]);
-  useEffect(() => {
-    const fetchFoodCategory = async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food-category`
-      );
-      const data = await response.json();
-      setFoodCategory(data);
-    };
-    fetchFoodCategory();
-  }, []);
-
+type Props = {
+  categories: FoodCategory[];
+};
+export const Footer = ({ categories }: Props) => {
   return (
     <div className="bg-[#18181B] mx-auto w-[2000px] h-[755px] pt-[60px] mt-14 ">
       <div className="py-7 bg-[#EF4444] px-[98px] mb-[76px]">
@@ -66,7 +56,7 @@ export const Footer = () => {
         <div className="w-800px h-[400px]">
           <h1 className="text-[#71717A] ">Menu</h1>
           <ul className="text-white grid grid-cols-2 gap-4">
-            {foodCategory?.slice(0, 10).map((category) => (
+            {categories?.slice(0, 10).map((category) => (
               <li key={category._id}>{category.categoryName}</li>
             ))}
           </ul>
