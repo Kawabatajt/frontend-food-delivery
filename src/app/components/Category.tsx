@@ -26,9 +26,9 @@ type FoodCategory = {
 };
 
 export const CategoryModal = () => {
-  const [foodCategory, setFoodCategory] = useState<FoodCategory[]>([]);
   const [inputValue, setInputValue] = useState<any>([]);
-  const { isLoading, data: categories } = useAuthFetch("food-category");
+  const { isLoading, data } = useAuthFetch("food-category");
+  const categories: FoodCategory[] = data;
   const [createOpenModal, setCreateOpenModal] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
   const params = useParams();
@@ -44,8 +44,6 @@ export const CategoryModal = () => {
         },
       }
     );
-    const data = await res.json();
-    setFoodCategory([...foodCategory, data]);
     setCreateOpenModal(!createOpenModal);
   };
   const onChangeHandler = (e: any) => {

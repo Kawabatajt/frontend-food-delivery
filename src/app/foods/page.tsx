@@ -1,49 +1,53 @@
 "use client";
-import { useState, useEffect } from "react";
+import { Header } from "../components/Header";
 import { HeroSection } from "../components/Hero";
 import { HomePageCategory } from "../components/HomePageCategory";
-import { EachCategory } from "../components/EachCategory";
 import { HomeCategory } from "../components/HomeCategory";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useAuthFetch } from "../components/useFetchData";
 import Link from "next/link";
-type FoodCategory = {
+import { Footer } from "../components/Footer";
+type Categories = {
   _id: string;
   categoryName: string;
 };
 export default function FoodsPage() {
-  const [foodCategory, setFoodCategory] = useState<FoodCategory[]>([]);
-  const { isLoading, data: Categories } = useAuthFetch("food-category");
+  const { isLoading, data } = useAuthFetch("food-category");
+  const categories: Categories[] = data;
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
 
   if (isLoading) return <div>Loading...</div>;
 
-  const SelectedCategory = Categories.find(
+  const SelectedCategory = categories.find(
     (category) => category._id == categoryId
   );
   return (
     <div className="">
-      <HeroSection />'
-      <div className="w-[2000px] mx-auto">
-        <div className="flex gap-2">
+      <Header />
+      <HeroSection />
+      <div className="w-[1440px] mx-auto">
+        <h1 className="text-3xl font-semibold text-white mt-8 mb-9">
+          Categories
+        </h1>
+        <div className="flex gap-2 overflow-scroll no-scrollbar">
           <Link href={`/foods`}>
             <Badge
               variant="outline"
               className={`${
                 categoryId === null ? "bg-[#EF4444] text-white" : "bg-white"
-              } text-lg rounded-full font-normal`}
+              } text-lg rounded-full font-normal border-none px-5 text-nowrap`}
             >
               All Dishes
             </Badge>
           </Link>
-          {Categories?.map((category) => (
+          {categories?.map((category) => (
             <HomePageCategory category={category} key={category._id} />
           ))}
         </div>
         {categoryId === null
-          ? Categories.map((category) => (
+          ? categories.map((category) => (
               <HomeCategory key={category._id} category={category} />
             ))
           : SelectedCategory && (
@@ -53,6 +57,7 @@ export default function FoodsPage() {
               />
             )}
       </div>
+      <Footer categories={categories} />
     </div>
   );
 }

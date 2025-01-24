@@ -14,9 +14,8 @@ type Categories = {
   categoryName: string;
 };
 export default function FoodsPage() {
-  const { isLoading, data: categories } =
-    useAuthFetch<Categories[]>("food-category");
-
+  const { isLoading, data } = useAuthFetch("food-category");
+  const categories: Categories[] = data;
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
 
@@ -27,9 +26,9 @@ export default function FoodsPage() {
   );
   return (
     <div className="">
-      <HeroSection />'
-      <div className="w-[2000px] mx-auto">
-        <div className="flex gap-2">
+      <HeroSection />
+      <div className="w-[1440px] mx-auto">
+        <div className="flex gap-2 flex-wrap overflow-scroll">
           <Link href={`/foods`}>
             <Badge
               variant="outline"
@@ -40,12 +39,12 @@ export default function FoodsPage() {
               All Dishes
             </Badge>
           </Link>
-          {Categories?.map((category) => (
+          {categories?.map((category) => (
             <HomePageCategory category={category} key={category._id} />
           ))}
         </div>
         {categoryId === null
-          ? Categories.map((category) => (
+          ? categories.map((category) => (
               <HomeCategory key={category._id} category={category} />
             ))
           : SelectedCategory && (
@@ -55,7 +54,7 @@ export default function FoodsPage() {
               />
             )}
       </div>
-      <Footer categories={Categories} />
+      <Footer categories={categories} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export function useAuthFetch(path: string) {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   async function getFetchData() {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${path}`, {})
       .then((res) => res.json())

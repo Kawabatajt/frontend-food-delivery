@@ -54,20 +54,20 @@ export const EachCategory = ({
   category: Category;
   allCategories: Category[];
 }) => {
-  const [foods, setFoods] = useState<Foods[]>([]);
+  // const [foods, setFoods] = useState<Foods[]>([]);
   const [foodValue, setFoodValue] = useState<string>();
   const [priceValue, setPriceValue] = useState<number>();
   const [ingredientsValue, setIngredientsValue] = useState<string>();
   const [createDialog, setCreateDialog] = useState(false);
   const [imageValue, setImageValue] = useState<any>(false);
   const [imageUpdate, setImageUpdate] = useState<string>();
-  const { isLoading, data: foodItems } = useAuthFetch(
-    `food?id=${category._id}`
-  );
+  const { isLoading, data } = useAuthFetch(`food?id=${category._id}`);
+  if (isLoading) return <div>Loading...</div>;
+  const foodItems: Foods[] = data;
 
-  console.log({ allCategories });
   const [categoryId, setCategoryId] = useState<string>();
   const [editFoods, setEditFoods] = useState<Foods[]>();
+  console.log({ foodItems });
   const handleEdit = async (food: Foods) => {
     const req = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/food?id=${food._id}`,
@@ -110,12 +110,11 @@ export const EachCategory = ({
         }
       );
       const dataJson = await response.json();
-      console.log(dataJson);
       setImageValue(dataJson.secure_url);
       setImageUpdate(dataJson.secure_url);
     }
   };
-  console.log(imageValue);
+
   const src = imageValue;
   const addFoodDetails = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/food`, {
@@ -132,7 +131,6 @@ export const EachCategory = ({
       },
     });
     const data = await res.json();
-    setFoods([...foods, data]);
     setCreateDialog(!createDialog);
   };
 
@@ -288,6 +286,8 @@ export const EachCategory = ({
                   <div className="flex justify-between">
                     <h1>Ingredients</h1>
                     <Input
+                      value={ingredientsValue}
+                      onChange={(e) => setIngredientsValue(e.target.value)}
                       defaultValue={food?.ingredients}
                       className="px-2 pt-5 w-[300px] pb-20"
                     />
@@ -295,6 +295,8 @@ export const EachCategory = ({
                   <div className="flex justify-between">
                     <h1>Price</h1>
                     <Input
+                      value={priceValue}
+                      onChange={(e) => setPriceValue(Number(e.target.value))}
                       defaultValue={food?.price}
                       className="px-2 py-2 w-[300px]"
                     />

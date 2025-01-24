@@ -44,7 +44,7 @@ export const HomePageCategory = ({ category }: Props) => {
           <Badge
             key={category._id}
             variant="outline"
-            className={`font-normal text-[#18181B] text-lg rounded-full ${
+            className={`font-normal text-[#18181B] text-lg rounded-full border-none px-5 text-nowrap ${
               category._id == search ? "bg-[#EF4444] text-white" : "bg-white"
             }`}
           >

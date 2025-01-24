@@ -12,7 +12,8 @@ type FoodCategory = {
 };
 export default function Home() {
   const [foodCategory, setFoodCategory] = useState<FoodCategory[]>([]);
-  const { isLoading, data: Categories } = useAuthFetch("food-category");
+  const { isLoading, data } = useAuthFetch("food-category");
+  const categories: FoodCategory[] = data;
   if (isLoading) return <div>Loading ...</div>;
   // useEffect(() => {
   //   const fetchFoodCategory = async () => {
@@ -34,9 +35,9 @@ export default function Home() {
             <UserButton />
           </div>
           <CategoryModal />
-          {Categories?.map((category) => (
+          {categories?.map((category) => (
             <EachCategory
-              allCategories={Categories}
+              allCategories={categories}
               key={category._id}
               category={category}
             />
