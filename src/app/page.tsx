@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuthFetch } from "./components/useFetchData";
 import Link from "next/link";
 import { Footer } from "./components/Footer";
+import { Header } from "./components/Header";
 type Categories = {
   _id: string;
   categoryName: string;
@@ -26,15 +27,19 @@ export default function FoodsPage() {
   );
   return (
     <div className="">
+      <Header />
       <HeroSection />
       <div className="w-[1440px] mx-auto">
-        <div className="flex gap-2 flex-wrap overflow-scroll">
+        <h1 className="text-3xl font-semibold text-white mt-8 mb-9">
+          Categories
+        </h1>
+        <div className="flex gap-2 overflow-scroll no-scrollbar">
           <Link href={`/foods`}>
             <Badge
               variant="outline"
               className={`${
                 categoryId === null ? "bg-[#EF4444] text-white" : "bg-white"
-              } text-lg rounded-full font-normal`}
+              } border-none text-lg rounded-full font-normal text-nowrap no-scrollbar`}
             >
               All Dishes
             </Badge>

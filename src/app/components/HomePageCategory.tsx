@@ -3,24 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
 import { Inter } from "next/font/google";
 import { useSearchParams } from "next/navigation";
-const inter = Inter({ subsets: ["latin"] });
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useState, useEffect, use } from "react";
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+const inter = Inter({ subsets: ["latin"] });
 import Link from "next/link";
-import { EachCategory } from "./EachCategory";
-import { useParams } from "next/navigation";
-import { FoodCard } from "./Card";
 type FoodCategory = {
   _id: string;
   categoryName: string;
@@ -32,7 +17,6 @@ type Category = {
 type Props = {
   category: Category;
 };
-
 export const HomePageCategory = ({ category }: Props) => {
   const searchParams = useSearchParams();
   const search = searchParams.get("categoryId");
