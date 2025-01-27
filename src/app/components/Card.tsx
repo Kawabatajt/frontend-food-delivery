@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { Minus } from "lucide-react";
+import { use, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 type Foods = {
   _id: string;
   foodName: string;
@@ -28,7 +30,24 @@ type Foods = {
 type Props = {
   food: Foods;
 };
+
 export const FoodCard = ({ food }: Props) => {
+  const { getToken } = useAuth();
+  const [foodCount, setFoodCount] = useState(1);
+  let totalPrice = foodCount * food.price;
+  const onPost = async (postPath: string, body: any) => {
+    console.log({ body });
+    const token = await getToken();
+    console.log(token);
+    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${postPath}`, {
+      method: "POST",
+      headers: {
+        authentication: token ?? "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  };
   return (
     <div>
       <Dialog>
@@ -77,21 +96,40 @@ export const FoodCard = ({ food }: Props) => {
                 <div className="flex justify-between mb-6">
                   <div>
                     <h1 className="font-normal text-base">Total price</h1>
-                    <h1 className="text-2xl font-semibold">${food.price}</h1>
+                    <h1 className="text-2xl font-semibold">${totalPrice}</h1>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="size-[44px] bg-white rounded-full border-[1px] border-[#E4E4E7] focus:border-black flex justify-center items-center">
+                    <div
+                      onClick={() => setFoodCount(foodCount - 1)}
+                      className="size-[44px] bg-white rounded-full border-[1px] border-[#E4E4E7] focus:border-black flex justify-center items-center"
+                    >
                       <Minus />
                     </div>
                     <div>
-                      <h1 className="font-semibold font text-lg">1</h1>
+                      <h1 className="font-semibold font text-lg">
+                        {foodCount}
+                      </h1>
                     </div>
-                    <div className="size-[44px] bg-white rounded-full border-[1px] border-[#E4E4E7] focus:border-black flex justify-center items-center">
+                    <div
+                      onClick={() => setFoodCount(foodCount + 1)}
+                      className="size-[44px] bg-white rounded-full border-[1px] border-[#E4E4E7] focus:border-black flex justify-center items-center"
+                    >
                       <Plus />
                     </div>
                   </div>
                 </div>
-                <Button className="py-3 w-full flex justify-center font-medium rounded-full">
+                <Button
+                  onClick={() =>
+                    onPost("food-order", {
+                      totalPrice: totalPrice,
+                      FoodOrderItems: {
+                        food: food._id,
+                        quantity: foodCount,
+                      },
+                    })
+                  }
+                  className="py-3 w-full flex justify-center font-medium rounded-full"
+                >
                   Add to cart
                 </Button>
               </div>

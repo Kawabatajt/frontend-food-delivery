@@ -1,18 +1,8 @@
-"use client";
-
-import { useState } from "react";
-import { ChevronRight, Divide } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-
-export const Header = () => {
-  const [isCart, setIsCart] = useState(false);
+import Link from "next/link";
+export const HeaderLogin = () => {
   return (
     <div className="bg-[#18181B] h-[68px] py-3 px-20 flex justify-between">
       <div className="flex items-center gap-3">
@@ -39,76 +29,22 @@ export const Header = () => {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <div className="flex py-2 px-3 bg-white rounded-full gap-2 items-center text-xs ">
-          <svg
-            width="16"
-            height="20"
-            viewBox="0 0 16 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        <Link href={`/signup`}>
+          <Button
+            variant="outline"
+            className="bg-white rounded-full text-black"
           >
-            <path
-              d="M15.0399 8.33335C15.0399 13.3334 8.37321 18.3334 8.37321 18.3334C8.37321 18.3334 1.70654 13.3334 1.70654 8.33335C1.70654 6.56524 2.40892 4.86955 3.65916 3.61931C4.90941 2.36907 6.6051 1.66669 8.37321 1.66669C10.1413 1.66669 11.837 2.36907 13.0873 3.61931C14.3375 4.86955 15.0399 6.56524 15.0399 8.33335Z"
-              stroke="#EF4444"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M8.37321 10.8334C9.75392 10.8334 10.8732 9.71407 10.8732 8.33335C10.8732 6.95264 9.75392 5.83335 8.37321 5.83335C6.9925 5.83335 5.87321 6.95264 5.87321 8.33335C5.87321 9.71407 6.9925 10.8334 8.37321 10.8334Z"
-              stroke="#EF4444"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <h1 className="text-[#EF4444]">Delivery address</h1>
-          <input
-            className="outline-none bg-transparent w-[70px]"
-            type="text"
-            name=""
-            id=""
-            placeholder="Add Location"
-          />
-          <ChevronRight className="opacity-50" />
-        </div>
-        <Popover>
-          <PopoverTrigger>
-            <div className="rounded-full bg-white size-[36px] flex items-center justify-center">
-              <ShoppingCart className="size-[13.36px]" />
-            </div>
-          </PopoverTrigger>
-          <PopoverContent className="bg-[#404040] border-none w-[535px]">
-            <div className="flex text-white gap-3 mb-6">
-              <ShoppingCart />
-              <h1 className="font-semibold text-xl">Order Detail</h1>
-            </div>
-            <div className="flex bg-white rounded-full">
-              <Button
-                onClick={() => setIsCart(true)}
-                className="rounded-full px-[110px] border-white border-[3px] focus:bg-[#EF4444] focus:text-white"
-                variant="outline"
-              >
-                Cart
-              </Button>
-              <Button
-                onClick={() => setIsCart(false)}
-                className="rounded-full px-[110px] border-white border-[3px]  focus:bg-[#EF4444] focus:text-white"
-                variant="outline"
-              >
-                Order
-              </Button>
-            </div>
-            {isCart && (
-              <div className="mt-6 bg-white rounded-lg p-4">
-                <h1 className="text-black">My Cart</h1>
-              </div>
-            )}
-          </PopoverContent>
-        </Popover>
-        <div className="rounded-full border-[#EF4444] border-[1px] size-[36px] flex items-center justify-center">
-          <UserButton />
-        </div>
+            Sign Up
+          </Button>
+        </Link>
+        <Link href={`/login`}>
+          <Button
+            variant="outline"
+            className="bg-[#EF4444] rounded-full border-none"
+          >
+            Log in
+          </Button>
+        </Link>
       </div>
     </div>
   );

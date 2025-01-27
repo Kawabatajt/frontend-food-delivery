@@ -7,9 +7,17 @@ import { HomeCategory } from "./components/HomeCategory";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useAuthFetch } from "./components/useFetchData";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 import Link from "next/link";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
+import { HeaderLogin } from "./components/Header-login";
 type Categories = {
   _id: string;
   categoryName: string;
@@ -27,7 +35,12 @@ export default function FoodsPage() {
   );
   return (
     <div className="">
-      <Header />
+      <SignedOut>
+        <HeaderLogin />
+      </SignedOut>
+      <SignedIn>
+        <Header />
+      </SignedIn>
       <HeroSection />
       <div className="w-[1440px] mx-auto">
         <h1 className="text-3xl font-semibold text-white mt-8 mb-9">

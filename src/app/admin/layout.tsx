@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <div>
       <SignedOut>
         <SignInButton>
           <div className="bg-black size-[200px] rounded-xl flex justify-center items-center mx-auto mt-20">
@@ -25,6 +25,6 @@ export default function RootLayout({
       <SignedIn>
         <main className="bg-[#404040]">{children}</main>
       </SignedIn>
-    </ClerkProvider>
+    </div>
   );
 }
