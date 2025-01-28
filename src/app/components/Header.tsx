@@ -5,14 +5,47 @@ import { ChevronRight, Divide } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { Minus } from "lucide-react";
+import { Plus } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
+type OrderItem = {
+  food: String;
+  quantity: number;
+};
 export const Header = () => {
   const [isCart, setIsCart] = useState(false);
+
+  const existingOrderString = localStorage.getItem("orderItems");
+  const existingOrder = JSON.parse(existingOrderString || "[]");
+  const [foodOrderItems, setFoodOrderItems] =
+    useState<OrderItem[]>(existingOrder);
+  const onMinusOrderItem = (idx: number) => {
+    const newOrderItems = foodOrderItems.map((orderItem, index) => {
+      if (idx === index && orderItem.quantity > 1) {
+        return {
+          ...orderItem,
+          quantity: orderItem.quantity - 1,
+        };
+      } else {
+        orderItem;
+      }
+    });
+    setFoodOrderItems(newOrderItems);
+  };
   return (
     <div className="bg-[#18181B] h-[68px] py-3 px-20 flex justify-between">
       <div className="flex items-center gap-3">
@@ -72,40 +105,96 @@ export const Header = () => {
           />
           <ChevronRight className="opacity-50" />
         </div>
-        <Popover>
-          <PopoverTrigger>
+        <Sheet>
+          <SheetTrigger>
             <div className="rounded-full bg-white size-[36px] flex items-center justify-center">
               <ShoppingCart className="size-[13.36px]" />
             </div>
-          </PopoverTrigger>
-          <PopoverContent className="bg-[#404040] border-none w-[535px]">
-            <div className="flex text-white gap-3 mb-6">
-              <ShoppingCart />
-              <h1 className="font-semibold text-xl">Order Detail</h1>
-            </div>
+          </SheetTrigger>
+          <SheetContent className="bg-[#404040] border-none min-w-[500px]">
+            <SheetHeader>
+              <SheetTitle>
+                <div className="flex text-white gap-3 mb-6">
+                  <ShoppingCart />
+                  <h1 className="font-semibold text-xl">Order Detail</h1>
+                </div>
+              </SheetTitle>
+            </SheetHeader>
+
             <div className="flex bg-white rounded-full">
               <Button
                 onClick={() => setIsCart(true)}
-                className="rounded-full px-[110px] border-white border-[3px] focus:bg-[#EF4444] focus:text-white"
+                className="rounded-full w-full justify-center border-white border-[3px] focus:bg-[#EF4444] focus:text-white"
                 variant="outline"
               >
                 Cart
               </Button>
               <Button
                 onClick={() => setIsCart(false)}
-                className="rounded-full px-[110px] border-white border-[3px]  focus:bg-[#EF4444] focus:text-white"
+                className="rounded-full w-full justify-center border-white border-[3px]  focus:bg-[#EF4444] focus:text-white"
                 variant="outline"
               >
                 Order
               </Button>
             </div>
             {isCart && (
-              <div className="mt-6 bg-white rounded-lg p-4">
-                <h1 className="text-black">My Cart</h1>
+              <div className="mt-6 bg-white rounded-[20px] p-4">
+                <h1 className="text-black mb-5 font-semibold text-xl">
+                  My Cart
+                </h1>
+                {existingOrder?.map((orderItem: any, idx: Number) => (
+                  <div className="flex gap-[10px]" key={orderItem?.food?._id}>
+                    <div
+                      className="w-[124px] h-[120px] bg-center bg-no-repeat bg-cover rounded-xl"
+                      style={{
+                        backgroundImage: `url(${orderItem?.food.image}) `,
+                      }}
+                    ></div>
+
+                    <div className="flex-1">
+                      <div>
+                        <div className="flex justify-between items-center">
+                          <h1 className="text-base font-bold text-[#EF4444]">
+                            {orderItem?.food?.foodName}
+                          </h1>
+                          <div className=" bg-white rounded-full size-[36px] flex border-[1px] justify-center items-center">
+                            <X className="size-[8px]" />
+                          </div>
+                        </div>
+                        <p className="text-xs w-[259px]">
+                          {orderItem?.food?.ingredients}
+                        </p>
+                      </div>
+
+                      <div className="flex justify-between mt-6 items-center">
+                        <div className="flex gap-2 items-center">
+                          <Button
+                            onClick={() => onMinusOrderItem(idx)}
+                            variant="outline"
+                            className="border-none ring-offset-0 size-[36px]"
+                          >
+                            <Minus />
+                          </Button>
+                          <h1>{orderItem.quantity}</h1>
+                          <Button
+                            variant="outline"
+                            className="border-none ring-offset-0 size-[36px]"
+                          >
+                            <Plus />
+                          </Button>
+                        </div>
+                        <span className="font-bold">
+                          ${orderItem?.food?.price}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
-          </PopoverContent>
-        </Popover>
+          </SheetContent>
+        </Sheet>
+
         <div className="rounded-full border-[#EF4444] border-[1px] size-[36px] flex items-center justify-center">
           <UserButton />
         </div>

@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -48,6 +49,25 @@ export const FoodCard = ({ food }: Props) => {
       body: JSON.stringify(body),
     });
   };
+  const addFoodOrder = (food: Foods) => {
+    localStorage.setItem(
+      "orderItems",
+      JSON.stringify([
+        {
+          food: food,
+          quantity: foodCount,
+        },
+      ])
+    );
+  };
+  // onClick={}
+  // onPost("food-order", {
+  //   totalPrice: totalPrice,
+  //   FoodOrderItems: {
+  //     food: food._id,
+  //     quantity: foodCount,
+  //   },
+  // })
   return (
     <div>
       <Dialog>
@@ -100,7 +120,7 @@ export const FoodCard = ({ food }: Props) => {
                   </div>
                   <div className="flex items-center gap-3">
                     <div
-                      onClick={() => setFoodCount(foodCount - 1)}
+                      onClick={() => setFoodCount(Math.max(1, foodCount - 1))}
                       className="size-[44px] bg-white rounded-full border-[1px] border-[#E4E4E7] focus:border-black flex justify-center items-center"
                     >
                       <Minus />
@@ -118,20 +138,14 @@ export const FoodCard = ({ food }: Props) => {
                     </div>
                   </div>
                 </div>
-                <Button
-                  onClick={() =>
-                    onPost("food-order", {
-                      totalPrice: totalPrice,
-                      FoodOrderItems: {
-                        food: food._id,
-                        quantity: foodCount,
-                      },
-                    })
-                  }
-                  className="py-3 w-full flex justify-center font-medium rounded-full"
-                >
-                  Add to cart
-                </Button>
+                <DialogClose asChild>
+                  <Button
+                    onClick={() => addFoodOrder(food)}
+                    className="py-3 w-full flex justify-center font-medium rounded-full"
+                  >
+                    Add to cart
+                  </Button>
+                </DialogClose>
               </div>
             </div>
           </DialogHeader>
