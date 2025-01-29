@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { ChevronRight, Divide } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { Minus } from "lucide-react";
 import { Plus } from "lucide-react";
+import type { Foods } from "./EachCategory";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -22,30 +24,69 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-type OrderItem = {
-  food: String;
+export type OrderItem = {
+  food: Foods;
   quantity: number;
 };
 export const Header = () => {
-  const [isCart, setIsCart] = useState(false);
-
-  const existingOrderString = localStorage.getItem("orderItems");
-  const existingOrder = JSON.parse(existingOrderString || "[]");
-  const [foodOrderItems, setFoodOrderItems] =
-    useState<OrderItem[]>(existingOrder);
-  const onMinusOrderItem = (idx: number) => {
-    const newOrderItems = foodOrderItems.map((orderItem, index) => {
-      if (idx === index && orderItem.quantity > 1) {
+  const [isCart, setIsCart] = useState(true);
+  const [isOpen, setIsopen] = useState(false);
+  const [foodOrderItems, setFoodOrderItems] = useState<OrderItem[]>();
+  const deleteOrder = (id: string) => {
+    const updatedOrder = foodOrderItems?.filter(
+      (orderItem) => orderItem.food._id !== id
+    );
+    setFoodOrderItems(updatedOrder);
+    localStorage.setItem("orderItems", JSON.stringify(updatedOrder));
+  };
+  const onMinusOrderItem = (idx: Number) => {
+    console.log({ foodOrderItems, idx });
+    const newOrderItems = foodOrderItems?.map((orderItem, index) => {
+      if (idx === index && orderItem?.quantity > 1) {
+        console.log(orderItem);
         return {
           ...orderItem,
-          quantity: orderItem.quantity - 1,
+          quantity: orderItem?.quantity - 1,
         };
       } else {
-        orderItem;
+        return orderItem;
       }
     });
-    setFoodOrderItems(newOrderItems);
+    setFoodOrderItems(newOrderItems as OrderItem[]);
+    localStorage.setItem("orderItems", JSON.stringify(newOrderItems));
   };
+  const onPlusOrderItem = (idx: Number) => {
+    const newOrderItems = foodOrderItems?.map((orderItem, index) => {
+      if (idx === index) {
+        return {
+          ...orderItem,
+          quantity: orderItem?.quantity + 1,
+        };
+      } else {
+        return orderItem;
+      }
+    });
+    setFoodOrderItems(newOrderItems as OrderItem[]);
+    localStorage.setItem("orderItems", JSON.stringify(newOrderItems));
+  };
+  const calculateTotalPrice = (
+    foodOrderItems: OrderItem[] | undefined
+  ): number => {
+    if (!foodOrderItems || foodOrderItems.length === 0) return 0;
+
+    return foodOrderItems.reduce((total, orderItem) => {
+      return total + orderItem.food.price * orderItem.quantity;
+    }, 0);
+  };
+  const totalPrice = calculateTotalPrice(foodOrderItems);
+
+  useEffect(() => {
+    if (isOpen) {
+      const existingOrderString = localStorage.getItem("orderItems");
+      const existingOrder = JSON.parse(existingOrderString || "[]") || [];
+      setFoodOrderItems(existingOrder);
+    }
+  }, [isOpen]);
   return (
     <div className="bg-[#18181B] h-[68px] py-3 px-20 flex justify-between">
       <div className="flex items-center gap-3">
@@ -105,12 +146,14 @@ export const Header = () => {
           />
           <ChevronRight className="opacity-50" />
         </div>
-        <Sheet>
-          <SheetTrigger>
-            <div className="rounded-full bg-white size-[36px] flex items-center justify-center">
-              <ShoppingCart className="size-[13.36px]" />
-            </div>
-          </SheetTrigger>
+        <Sheet open={isOpen} onOpenChange={setIsopen}>
+          <div
+            onClick={() => setIsopen(true)}
+            className="rounded-full bg-white size-[36px] flex items-center justify-center"
+          >
+            <ShoppingCart className="size-[13.36px]" />
+          </div>
+
           <SheetContent className="bg-[#404040] border-none min-w-[500px]">
             <SheetHeader>
               <SheetTitle>
@@ -124,7 +167,9 @@ export const Header = () => {
             <div className="flex bg-white rounded-full">
               <Button
                 onClick={() => setIsCart(true)}
-                className="rounded-full w-full justify-center border-white border-[3px] focus:bg-[#EF4444] focus:text-white"
+                className={`rounded-full w-full justify-center border-white border-[3px] ${
+                  isCart ? "bg-[#EF4444] text-white" : "bg-white"
+                }`}
                 variant="outline"
               >
                 Cart
@@ -142,8 +187,11 @@ export const Header = () => {
                 <h1 className="text-black mb-5 font-semibold text-xl">
                   My Cart
                 </h1>
-                {existingOrder?.map((orderItem: any, idx: Number) => (
-                  <div className="flex gap-[10px]" key={orderItem?.food?._id}>
+                {foodOrderItems?.map((orderItem: any, idx: Number) => (
+                  <div
+                    className="pb-5 mb-5 flex gap-[10px] border-b-[1px] border-dashed"
+                    key={orderItem?.food?._id}
+                  >
                     <div
                       className="w-[124px] h-[120px] bg-center bg-no-repeat bg-cover rounded-xl"
                       style={{
@@ -157,7 +205,10 @@ export const Header = () => {
                           <h1 className="text-base font-bold text-[#EF4444]">
                             {orderItem?.food?.foodName}
                           </h1>
-                          <div className=" bg-white rounded-full size-[36px] flex border-[1px] justify-center items-center">
+                          <div
+                            onClick={() => deleteOrder(orderItem?.food?._id)}
+                            className=" bg-white rounded-full size-[36px] flex border-[1px] justify-center items-center"
+                          >
                             <X className="size-[8px]" />
                           </div>
                         </div>
@@ -171,27 +222,46 @@ export const Header = () => {
                           <Button
                             onClick={() => onMinusOrderItem(idx)}
                             variant="outline"
-                            className="border-none ring-offset-0 size-[36px]"
+                            className="flex justify-center items-center border-none ring-offset-0 size-[36px]"
                           >
                             <Minus />
                           </Button>
-                          <h1>{orderItem.quantity}</h1>
+                          <h1 className="font-semibold">
+                            {orderItem?.quantity}
+                          </h1>
                           <Button
+                            onClick={() => onPlusOrderItem(idx)}
                             variant="outline"
-                            className="border-none ring-offset-0 size-[36px]"
+                            className="flex justify-center items-center border-none ring-offset-0 size-[36px]"
                           >
                             <Plus />
                           </Button>
                         </div>
                         <span className="font-bold">
-                          ${orderItem?.food?.price}
+                          ${orderItem?.food?.price * orderItem?.quantity}
                         </span>
                       </div>
                     </div>
                   </div>
                 ))}
+                <SheetClose className="w-full">
+                  <div className="border-[1px] py-2 w-full flex justify-center rounded-full text-[#EF4444] font-medium">
+                    Add Food
+                  </div>
+                </SheetClose>
               </div>
             )}
+            <div className="bg-white p-4 rounded-[20px] mt-6">
+              <h1>Payment info</h1>
+              <div>
+                <h2>Items</h2>
+                <h2>{totalPrice}</h2>
+              </div>
+              <div>
+                <h2>Items</h2>
+                <h2></h2>
+              </div>
+            </div>
           </SheetContent>
         </Sheet>
 

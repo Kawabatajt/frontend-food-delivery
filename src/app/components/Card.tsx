@@ -18,9 +18,10 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { Minus } from "lucide-react";
-import { use, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-type Foods = {
+import type { OrderItem } from "./Header";
+export type Foods = {
   _id: string;
   foodName: string;
   price: number;
@@ -50,16 +51,22 @@ export const FoodCard = ({ food }: Props) => {
     });
   };
   const addFoodOrder = (food: Foods) => {
-    localStorage.setItem(
-      "orderItems",
-      JSON.stringify([
-        {
-          food: food,
-          quantity: foodCount,
-        },
-      ])
+    const oldValues = localStorage.getItem("orderItems");
+    const oldOrderItems = oldValues ? JSON.parse(oldValues) : [];
+    const oldFood = oldOrderItems.find(
+      (item: OrderItem) => item.food._id === food._id
     );
+    if (oldFood) {
+      oldFood.quantity += foodCount;
+    } else {
+      oldOrderItems.push({
+        food,
+        quantity: foodCount,
+      });
+    }
+    localStorage.setItem("orderItems", JSON.stringify(oldOrderItems));
   };
+
   // onClick={}
   // onPost("food-order", {
   //   totalPrice: totalPrice,
@@ -68,6 +75,7 @@ export const FoodCard = ({ food }: Props) => {
   //     quantity: foodCount,
   //   },
   // })
+
   return (
     <div>
       <Dialog>
