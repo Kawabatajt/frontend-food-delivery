@@ -27,6 +27,7 @@ export default function FoodsPage() {
   const categories: Categories[] = data;
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
+  const [addressValue, setAddressValue] = useState<string>("");
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -39,7 +40,7 @@ export default function FoodsPage() {
         <HeaderLogin />
       </SignedOut>
       <SignedIn>
-        <Header />
+        <Header addressValue={addressValue} setAddressValue={setAddressValue} />
       </SignedIn>
       <HeroSection />
       <div className="w-[1440px] mx-auto">
@@ -63,12 +64,17 @@ export default function FoodsPage() {
         </div>
         {categoryId === null
           ? categories.map((category) => (
-              <HomeCategory key={category._id} category={category} />
+              <HomeCategory
+                key={category._id}
+                category={category}
+                addressValue={addressValue}
+              />
             ))
           : SelectedCategory && (
               <HomeCategory
                 key={SelectedCategory._id}
                 category={SelectedCategory}
+                addressValue={addressValue}
               />
             )}
       </div>

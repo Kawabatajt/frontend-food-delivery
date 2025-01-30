@@ -9,6 +9,17 @@ import { X } from "lucide-react";
 import { Minus } from "lucide-react";
 import { Plus } from "lucide-react";
 import type { Foods } from "./EachCategory";
+import { useAuth } from "@clerk/nextjs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
 import {
   Sheet,
   SheetClose,
@@ -18,26 +29,54 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { DialogClose } from "@radix-ui/react-dialog";
 export type OrderItem = {
   food: Foods;
   quantity: number;
 };
-export const Header = () => {
+type HeaderProps = {
+  addressValue: string;
+  setAddressValue: React.Dispatch<React.SetStateAction<string>>;
+};
+
+export const Header = ({ addressValue, setAddressValue }: HeaderProps) => {
+  const { getToken } = useAuth();
+
   const [isCart, setIsCart] = useState(true);
   const [isOpen, setIsopen] = useState(false);
   const [foodOrderItems, setFoodOrderItems] = useState<OrderItem[]>();
+  useEffect(() => {
+    if (isOpen) {
+      const existingOrderString = localStorage.getItem("orderItems");
+      const existingOrder = JSON.parse(existingOrderString || "[]") || [];
+      setFoodOrderItems(existingOrder);
+    }
+  }, [isOpen]);
+  const [isDialog, setIsDialog] = useState(false);
   const deleteOrder = (id: string) => {
     const updatedOrder = foodOrderItems?.filter(
       (orderItem) => orderItem.food._id !== id
     );
     setFoodOrderItems(updatedOrder);
     localStorage.setItem("orderItems", JSON.stringify(updatedOrder));
+  };
+
+  const onPost = async (postPath: string, body: any) => {
+    const token = await getToken();
+    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${postPath}`, {
+      method: "POST",
+      headers: {
+        authentication: token ?? "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    setIsopen(false);
+    setIsDialog(true);
+    if (!isDialog) {
+      setFoodOrderItems([]);
+      localStorage.setItem("orderItems", "[]");
+    }
   };
   const onMinusOrderItem = (idx: Number) => {
     console.log({ foodOrderItems, idx });
@@ -80,13 +119,7 @@ export const Header = () => {
   };
   const totalPrice = calculateTotalPrice(foodOrderItems);
 
-  useEffect(() => {
-    if (isOpen) {
-      const existingOrderString = localStorage.getItem("orderItems");
-      const existingOrder = JSON.parse(existingOrderString || "[]") || [];
-      setFoodOrderItems(existingOrder);
-    }
-  }, [isOpen]);
+  const shippingPrice = 0.99;
   return (
     <div className="bg-[#18181B] h-[68px] py-3 px-20 flex justify-between">
       <div className="flex items-center gap-3">
@@ -136,9 +169,11 @@ export const Header = () => {
               strokeLinejoin="round"
             />
           </svg>
-          <h1 className="text-[#EF4444]">Delivery address</h1>
+          <h1 className="text-[#EF4444]">Delivery address:</h1>
           <input
-            className="outline-none bg-transparent w-[70px]"
+            className="outline-none bg-transparent w-[80px]"
+            value={addressValue}
+            onChange={(e) => setAddressValue(e.target.value)}
             type="text"
             name=""
             id=""
@@ -154,7 +189,7 @@ export const Header = () => {
             <ShoppingCart className="size-[13.36px]" />
           </div>
 
-          <SheetContent className="bg-[#404040] border-none min-w-[500px]">
+          <SheetContent className="bg-[#404040] border-none min-w-[500px] overflow-scroll">
             <SheetHeader>
               <SheetTitle>
                 <div className="flex text-white gap-3 mb-6">
@@ -252,19 +287,56 @@ export const Header = () => {
               </div>
             )}
             <div className="bg-white p-4 rounded-[20px] mt-6">
-              <h1>Payment info</h1>
-              <div>
-                <h2>Items</h2>
-                <h2>{totalPrice}</h2>
+              <h1 className="mb-5 text-xl font-semibold">Payment info</h1>
+              <div className="flex justify-between mb-2">
+                <h2 className="text-[#71717A]">Items</h2>
+                <h2 className="font-bold text-base">${totalPrice}</h2>
               </div>
-              <div>
-                <h2>Items</h2>
-                <h2></h2>
+              <div className="border-b-[1px] pb-5 flex justify-between mb-5">
+                <h2 className="text-[#71717A]">Shipping</h2>
+                <h2 className="font-bold text-base">${shippingPrice}</h2>
+              </div>
+              <div className="flex justify-between">
+                <h1 className="text-[#71717A]">Total</h1>
+                <h2 className="font-bold">${totalPrice + shippingPrice}</h2>
+              </div>
+
+              <div
+                onClick={() =>
+                  onPost("food-order", {
+                    totalPrice,
+                    foodOrderItems,
+                    address: addressValue,
+                  })
+                }
+                className="w-full py-2 rounded-full bg-[#EF4444] mt-5 flex justify-center text-white cursor"
+              >
+                Checkout
               </div>
             </div>
           </SheetContent>
         </Sheet>
-
+        <Dialog open={isDialog} onOpenChange={setIsDialog}>
+          <DialogContent className="flex-col justify-center items-center">
+            <DialogHeader>
+              <DialogTitle className="justify-center">
+                Your order has been successfully placed !
+              </DialogTitle>
+              {/* <DialogDescription>
+                This action cannot be undone. This will permanently delete your
+                account and remove your data from our servers.
+              </DialogDescription> */}
+            </DialogHeader>
+            <div className="flex justify-center mt-6">
+              <img src="./illustration.png" alt="" />
+            </div>
+            <DialogClose className="flex justify-center mt-6">
+              <div className="bg-[#F4F4F5] rounded-full py-2 flex justify-center w-[134px]">
+                Close
+              </div>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
         <div className="rounded-full border-[#EF4444] border-[1px] size-[36px] flex items-center justify-center">
           <UserButton />
         </div>

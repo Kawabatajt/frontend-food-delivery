@@ -31,26 +31,17 @@ export type Foods = {
 };
 type Props = {
   food: Foods;
+  addressValue: string;
 };
 
-export const FoodCard = ({ food }: Props) => {
+export const FoodCard = ({ food, addressValue }: Props) => {
   const { getToken } = useAuth();
   const [foodCount, setFoodCount] = useState(1);
   let totalPrice = foodCount * food.price;
-  const onPost = async (postPath: string, body: any) => {
-    console.log({ body });
-    const token = await getToken();
-    console.log(token);
-    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${postPath}`, {
-      method: "POST",
-      headers: {
-        authentication: token ?? "",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-  };
   const addFoodOrder = (food: Foods) => {
+    if (!addressValue) {
+      return alert("no address");
+    }
     const oldValues = localStorage.getItem("orderItems");
     const oldOrderItems = oldValues ? JSON.parse(oldValues) : [];
     const oldFood = oldOrderItems.find(

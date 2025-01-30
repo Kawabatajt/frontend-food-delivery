@@ -18,8 +18,9 @@ type Category = {
 };
 type Props = {
   category: Category;
+  addressValue: string;
 };
-export const HomeCategory = ({ category }: Props) => {
+export const HomeCategory = ({ category, addressValue }: Props) => {
   const query = category?._id ? `?id=${category?._id}` : "";
   const { isLoading, data } = useAuthFetch(`food${query}`);
   const foods: Foods[] = data;
@@ -32,7 +33,9 @@ export const HomeCategory = ({ category }: Props) => {
       </h1>
       <div className="flex flex-wrap gap-9">
         {foods?.map((food) => {
-          return <FoodCard food={food} key={food._id} />;
+          return (
+            <FoodCard food={food} key={food._id} addressValue={addressValue} />
+          );
         })}
       </div>
     </div>
