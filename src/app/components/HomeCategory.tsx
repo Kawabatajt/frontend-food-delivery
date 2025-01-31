@@ -24,7 +24,7 @@ export const HomeCategory = ({ category, addressValue }: Props) => {
   const query = category?._id ? `?id=${category?._id}` : "";
   const { isLoading, data } = useAuthFetch(`food${query}`);
   const foods: Foods[] = data;
-  console.log(foods);
+
   if (isLoading) return <div>Loading...</div>;
   return (
     <div className={` mt-[74px] rounded-xl${inter.className}`}>

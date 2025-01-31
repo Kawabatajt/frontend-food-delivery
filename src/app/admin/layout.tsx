@@ -6,6 +6,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { SideBar } from "../components/Sidebar";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,7 +24,7 @@ export default function RootLayout({
         </SignInButton>
       </SignedOut>
       <SignedIn>
-        <main className="bg-[#404040]">{children}</main>
+        <main className="bg-[#404040] flex">{children}</main>
       </SignedIn>
     </div>
   );

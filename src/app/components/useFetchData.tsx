@@ -7,7 +7,6 @@ export function useAuthFetch(path: string) {
       .then((res) => res.json())
       .then((data) => setData(data));
   }
-  console.log({ data, path });
   useEffect(() => {
     getFetchData();
   }, []);

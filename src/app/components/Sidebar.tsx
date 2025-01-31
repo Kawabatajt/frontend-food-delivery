@@ -66,14 +66,16 @@ export const SideBar = () => {
             <h1>Food Menu</h1>
           </Button>
         </Link>
+        <Link href={`/admin/order`}>
+          <Button
+            className="rounded-full px-[25px] w-[165px] hover:bg-[#18181B] hover:text-white"
+            variant="outline"
+          >
+            <Truck />
+            <h1>Order</h1>
+          </Button>
+        </Link>
 
-        <Button
-          className="rounded-full px-[25px] w-[165px] hover:bg-[#18181B] hover:text-white"
-          variant="outline"
-        >
-          <Truck />
-          <h1>Order</h1>
-        </Button>
         <Button
           className="rounded-full px-[25px] w-[165px] hover:bg-[#18181B] hover:text-white"
           variant="outline"

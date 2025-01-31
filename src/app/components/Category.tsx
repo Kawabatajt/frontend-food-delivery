@@ -20,6 +20,7 @@ import { X } from "lucide-react";
 import Link from "next/link";
 import { EachCategory } from "./EachCategory";
 import { useParams } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 type FoodCategory = {
   _id: string;
   categoryName: string;
@@ -31,6 +32,7 @@ export const CategoryModal = () => {
   const categories: FoodCategory[] = data;
   const [createOpenModal, setCreateOpenModal] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
+  const { user } = useClerk();
   const params = useParams();
   if (isLoading) return <div>Loading...</div>;
   const addCategory = async () => {

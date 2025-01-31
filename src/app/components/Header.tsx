@@ -3,13 +3,14 @@
 import { use, useEffect, useState } from "react";
 import { ChevronRight, Divide } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import { useClerk, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { Minus } from "lucide-react";
 import { Plus } from "lucide-react";
 import type { Foods } from "./EachCategory";
 import { useAuth } from "@clerk/nextjs";
+import { useAuthFetch } from "./useFetchData";
 import {
   Dialog,
   DialogContent,
@@ -38,13 +39,52 @@ type HeaderProps = {
   addressValue: string;
   setAddressValue: React.Dispatch<React.SetStateAction<string>>;
 };
-
+type MyOrder = {
+  user: string;
+};
 export const Header = ({ addressValue, setAddressValue }: HeaderProps) => {
   const { getToken } = useAuth();
-
+  const { user } = useClerk();
   const [isCart, setIsCart] = useState(true);
   const [isOpen, setIsopen] = useState(false);
   const [foodOrderItems, setFoodOrderItems] = useState<OrderItem[]>();
+  const [data, setData] = useState<any[]>([]);
+  const fetchOrderData = async () => {
+    const token = await getToken();
+    if (!token) return;
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/food-order`, {
+      headers: {
+        authentication: token,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data);
+      });
+  };
+  useEffect(() => {
+    const sendData = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/account`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: user?.externalAccounts[0].emailAddress,
+          }),
+        }
+      );
+      const response = await res.json();
+      localStorage.setItem("userId", response._id);
+    };
+    sendData();
+  }, [user]);
+  useEffect(() => {
+    if (!isCart) fetchOrderData();
+    console.log({ data });
+  }, [isCart]);
   useEffect(() => {
     if (isOpen) {
       const existingOrderString = localStorage.getItem("orderItems");
@@ -60,7 +100,7 @@ export const Header = ({ addressValue, setAddressValue }: HeaderProps) => {
     setFoodOrderItems(updatedOrder);
     localStorage.setItem("orderItems", JSON.stringify(updatedOrder));
   };
-
+  console.log(user?.externalAccounts[0].emailAddress);
   const onPost = async (postPath: string, body: any) => {
     const token = await getToken();
     await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${postPath}`, {
@@ -120,6 +160,7 @@ export const Header = ({ addressValue, setAddressValue }: HeaderProps) => {
   const totalPrice = calculateTotalPrice(foodOrderItems);
 
   const shippingPrice = 0.99;
+
   return (
     <div className="bg-[#18181B] h-[68px] py-3 px-20 flex justify-between">
       <div className="flex items-center gap-3">
@@ -286,6 +327,9 @@ export const Header = ({ addressValue, setAddressValue }: HeaderProps) => {
                 </SheetClose>
               </div>
             )}
+            {/* {!isCart && <div>
+              {data?.map((order)=> )}
+              </div>} */}
             <div className="bg-white p-4 rounded-[20px] mt-6">
               <h1 className="mb-5 text-xl font-semibold">Payment info</h1>
               <div className="flex justify-between mb-2">
