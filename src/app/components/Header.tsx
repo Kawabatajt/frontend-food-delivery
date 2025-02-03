@@ -351,6 +351,7 @@ export const Header = ({ addressValue, setAddressValue }: HeaderProps) => {
                     totalPrice,
                     foodOrderItems,
                     address: addressValue,
+                    email: user?.externalAccounts[0].emailAddress,
                   })
                 }
                 className="w-full py-2 rounded-full bg-[#EF4444] mt-5 flex justify-center text-white cursor"
