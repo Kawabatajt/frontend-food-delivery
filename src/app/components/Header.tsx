@@ -100,7 +100,7 @@ export const Header = ({ addressValue, setAddressValue }: HeaderProps) => {
     setFoodOrderItems(updatedOrder);
     localStorage.setItem("orderItems", JSON.stringify(updatedOrder));
   };
-  console.log(user?.externalAccounts[0].emailAddress);
+  const email = user?.externalAccounts[0].emailAddress;
   const onPost = async (postPath: string, body: any) => {
     const token = await getToken();
     await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${postPath}`, {
@@ -351,7 +351,7 @@ export const Header = ({ addressValue, setAddressValue }: HeaderProps) => {
                     totalPrice,
                     foodOrderItems,
                     address: addressValue,
-                    email: user?.externalAccounts[0].emailAddress,
+                    email,
                   })
                 }
                 className="w-full py-2 rounded-full bg-[#EF4444] mt-5 flex justify-center text-white cursor"
